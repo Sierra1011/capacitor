@@ -2,8 +2,6 @@ FROM --platform=$TARGETPLATFORM alpine:3
 
 RUN addgroup -S capacitor && adduser -S capacitor -G capacitor
 
-ADD docker/known_hosts /etc/ssh/ssh_known_hosts
-
 RUN mkdir /var/lib/capacitor
 RUN chown capacitor:capacitor /var/lib/capacitor
 WORKDIR /capacitor
