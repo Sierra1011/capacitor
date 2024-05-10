@@ -56,6 +56,8 @@ jobs:
       run: make build
       env:
         VERSION: "ci-build"
+    
+    - run: ls /build/
 
   publish_x86:
     name: Publish x86 version
