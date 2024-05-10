@@ -11,7 +11,7 @@ WORKDIR /capacitor
 ARG TARGETPLATFORM
 ARG BUILDPLATFORM
 
-ENV popup_notifications true
+ENV POPUP_NOTIFICATIONS true
 
 COPY --chown=capacitor:capacitor bin/${TARGETPLATFORM}/capacitor capacitor
 COPY --chown=capacitor:capacitor web/build ./web/build/
