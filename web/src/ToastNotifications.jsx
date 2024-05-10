@@ -43,39 +43,41 @@ function ToastNotifications(props) {
 
 function ToastElement(props) {
   const { event, dismiss, handleNavigationSelect } = props;
-  return (
-    <Transition
-      as="div"
-      appear={true}
-      show={true}>
-      <Transition.Child
+  if (process.env.POPUP_NOTIFICATIONS === 'true') {
+    return (
+      <Transition
         as="div"
-        enter="transition ease duration-500 transform"
-        enterFrom="opacity-0 -translate-y-12"
-        enterTo="opacity-100 translate-y-0"
-        leave="transition ease duration-300 transform"
-        leaveFrom="opacity-100 translate-y-0"
-        leaveTo="opacity-0 -translate-y-12"
-      >
-        <div className="rounded-md shadow-lg bg-orange-400" role="alert">
-          <div className="flex p-4">
-            <NavigationButton handleNavigation={() => handleNavigationSelect(event.involvedObjectKind === "Kustomization" ? "Kustomizations" : "Sources", event.involvedObjectNamespace, event.involvedObject, event.involvedObjectKind)}>
-              <p className="break-all line-clamp-3"><span className='font-bold'>{event.involvedObjectKind} {event.involvedObjectNamespace}/{event.involvedObject}</span>: {event.message}</p>
-            </NavigationButton>
-            <div className="ml-auto">
-              <button
-                className="rounded-md inline-flex focus:outline-none flex-shrink-0 justify-center items-center text-white/[.5] hover:text-white transition-all"
-                onClick={() => dismiss(event)}
-              >
-                <span className="sr-only">Close</span>
-                <XMarkIcon className="h-5 w-5" aria-hidden="true" />
-              </button>
+        appear={true}
+        show={true}>
+        <Transition.Child
+          as="div"
+          enter="transition ease duration-500 transform"
+          enterFrom="opacity-0 -translate-y-12"
+          enterTo="opacity-100 translate-y-0"
+          leave="transition ease duration-300 transform"
+          leaveFrom="opacity-100 translate-y-0"
+          leaveTo="opacity-0 -translate-y-12"
+        >
+          <div className="rounded-md shadow-lg bg-orange-400" role="alert">
+            <div className="flex p-4">
+              <NavigationButton handleNavigation={() => handleNavigationSelect(event.involvedObjectKind === "Kustomization" ? "Kustomizations" : "Sources", event.involvedObjectNamespace, event.involvedObject, event.involvedObjectKind)}>
+                <p className="break-all line-clamp-3"><span className='font-bold'>{event.involvedObjectKind} {event.involvedObjectNamespace}/{event.involvedObject}</span>: {event.message}</p>
+              </NavigationButton>
+              <div className="ml-auto">
+                <button
+                  className="rounded-md inline-flex focus:outline-none flex-shrink-0 justify-center items-center text-white/[.5] hover:text-white transition-all"
+                  onClick={() => dismiss(event)}
+                >
+                  <span className="sr-only">Close</span>
+                  <XMarkIcon className="h-5 w-5" aria-hidden="true" />
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      </Transition.Child>
-    </Transition>
-  )
+        </Transition.Child>
+      </Transition>
+    )
+  }
 }
 
 const isSameEvent = (a, b) => {
