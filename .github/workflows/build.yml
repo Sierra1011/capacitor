@@ -99,6 +99,7 @@ jobs:
           context: .
           provenance: false
           build-args: |
+            TARGETPLATFORM=amd64
             Version=dev
             GitCommit=${{ steps.shortsha.outputs.short_sha }}
           tags: |
