@@ -56,14 +56,23 @@ jobs:
       run: make build
       env:
         VERSION: "ci-build"
-    
-    - run: ls build/
 
-  publish_x86:
-    name: Publish x86 version
+    - uses: actions/upload-artifact@v4
+      with:
+        name: capacitor
+        path: build
+        retention-days: 15
+
+  publish:
+    name: Publish version
     needs: test
+    strategy:
+      matrix: 
+        arch: 
+          - amd64
+      fail-fast: false
     concurrency: 
-      group: ${{ github.ref }}-x86
+      group: ${{ github.ref }}-${{ matrix.arch }}
       cancel-in-progress: true
     permissions:
       packages: write
@@ -75,22 +84,10 @@ jobs:
         with:
           fetch-depth: 5
 
-      - name: Go Build Cache
-        uses: actions/cache@v3
+      - uses: actions/download-artifact@v4
         with:
-          path: ${{ steps.go-cache-paths.outputs.go-build }}
-          key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
-
-      - name: Go Mod Cache
-        uses: actions/cache@v3
-        with:
-          path: ${{ steps.go-cache-paths.outputs.go-mod }}
-          key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
-
-      - name: 🏗️ Build
-        run: make build
-        env:
-          VERSION: "ci-build"
+          path: build
+          name: capacitor
 
       - name: Get Repo Owner
         id: get_repo_owner
@@ -115,13 +112,13 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           outputs: "type=registry,push=true"
-          platforms: linux/amd64
+          platforms: linux/${{ matrix.arch }}
           file: ./docker/Dockerfile
           context: .
           provenance: false
           build-args: |
-            TARGETPLATFORM=amd64
-            Version=dev
-            GitCommit=${{ steps.shortsha.outputs.short_sha }}
+            TARGETPLATFORM=${{ matrix.arch }}
           tags: |
-            ghcr.io/${{ env.REPO_OWNER }}/${{ github.event.repository.name }}:${{ steps.shortsha.outputs.short_sha }}-amd64
+            ghcr.io/${{ env.REPO_OWNER }}/${{ github.event.repository.name }}:${{ steps.shortsha.outputs.short_sha }}-${{ matrix.arch }}
+            ghcr.io/${{ env.REPO_OWNER }}/${{ github.event.repository.name }}:latest-${{ matrix.arch }}
+            
