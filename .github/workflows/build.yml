@@ -70,6 +70,31 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@master
+        with:
+          fetch-depth: 5
+
+      - name: Go Build Cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.go-cache-paths.outputs.go-build }}
+          key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
+
+      - name: Go Mod Cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.go-cache-paths.outputs.go-mod }}
+          key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
+
+      - name: 🤞 Test
+        run: |
+          git config --global user.email "git@gimlet.io"
+          git config --global user.name "Github Actions"
+          make test
+
+      - name: 🏗️ Build
+        run: make build
+        env:
+          VERSION: "ci-build"
 
       - name: Get Repo Owner
         id: get_repo_owner
