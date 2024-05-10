@@ -58,6 +58,7 @@ jobs:
         VERSION: "ci-build"
 
   publish_x86:
+    name: Publish x86 version
     needs: test
     concurrency: 
       group: ${{ github.ref }}-x86
@@ -94,7 +95,7 @@ jobs:
         with:
           outputs: "type=registry,push=true"
           platforms: linux/amd64
-          file: ./Dockerfile
+          file: ./docker/Dockerfile
           context: .
           provenance: false
           build-args: |
