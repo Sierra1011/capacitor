@@ -64,7 +64,7 @@ jobs:
         registry: ghcr.io
         username: ${{ github.repository_owner }}
         password: ${{ secrets.PAT }} # `PAT` is a secret that contains your Personal Access Token with `write:packages` scope
-    - name: Build and push Gimlet image
+    - name: Build and push Capacitor image
       id: build-and-push
       uses: docker/build-push-action@v4.2.1
       with:
@@ -73,13 +73,13 @@ jobs:
         platforms: linux/amd64,linux/arm64/v8
         push: true
         tags: |
-          ghcr.io/gimlet-io/capacitor:${{ steps.version.outputs.version }}
+          ghcr.io/${{ github.actor }}/capacitor:${{ steps.version.outputs.version }}
     - name: Set up Flux CLI
       uses: fluxcd/flux2/action@v2.2.3
     - name: Push manifests
       run: |
         flux push artifact \
-        oci://ghcr.io/gimlet-io/capacitor-manifests:${{ steps.version.outputs.version }} \
+        oci://ghcr.io/${{ github.actor }}/capacitor-manifests:${{ steps.version.outputs.version }} \
         --path=deploy/k8s \
         --source=${{ github.repositoryUrl }} \
         --revision="${{ github.ref_name }}@sha1:${{ github.sha }}" \
@@ -91,4 +91,4 @@ jobs:
     - name: Sign oci artifacts
       run: |
         # keyless mode
-        cosign sign ghcr.io/gimlet-io/capacitor-manifests:${{ steps.version.outputs.version }} -y
+        cosign sign ghcr.io/${{ github.actor }}/capacitor-manifests:${{ steps.version.outputs.version }} -y
