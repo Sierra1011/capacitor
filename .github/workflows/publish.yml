@@ -11,9 +11,6 @@ jobs:
     permissions:
       contents: write # Required for creating the GitHub release
       packages: write # Required for pushing to GitHub Container Registry
-      # This is used to complete the identity challenge
-      # with sigstore/fulcio when running outside of PRs.
-      id-token: write
     steps:
     - name: 🛑 Cancel Previous Runs
       uses: styfle/cancel-workflow-action@0.9.1
@@ -62,7 +59,7 @@ jobs:
       uses: docker/login-action@v1
       with:
         registry: ghcr.io
-        username: ${{ github.repository_owner }}
+        username: ${{ github.actor }}
         password: ${{ secrets.PAT }} # `PAT` is a secret that contains your Personal Access Token with `write:packages` scope
     - name: Build and push Capacitor image
       id: build-and-push
@@ -74,21 +71,3 @@ jobs:
         push: true
         tags: |
           ghcr.io/${{ github.actor }}/capacitor:${{ steps.version.outputs.version }}
-    - name: Set up Flux CLI
-      uses: fluxcd/flux2/action@v2.2.3
-    - name: Push manifests
-      run: |
-        flux push artifact \
-        oci://ghcr.io/${{ github.actor }}/capacitor-manifests:${{ steps.version.outputs.version }} \
-        --path=deploy/k8s \
-        --source=${{ github.repositoryUrl }} \
-        --revision="${{ github.ref_name }}@sha1:${{ github.sha }}" \
-        --annotations='org.opencontainers.image.description=Capacitor install manifests for Flux'
-    - name: Install cosign
-      uses: sigstore/cosign-installer@v3.4.0
-    - name: Cosign version
-      run: cosign version
-    - name: Sign oci artifacts
-      run: |
-        # keyless mode
-        cosign sign ghcr.io/${{ github.actor }}/capacitor-manifests:${{ steps.version.outputs.version }} -y
